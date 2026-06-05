@@ -1,0 +1,887 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knov.ai/schema/oars-manifest.json",
+  "title": "OARSManifest",
+  "description": "The authoritative machine-readable identity and capability record for any entity on the agent web. Published as oars.json at the root of any domain. Part of the Open Agent Readiness Standard (OARS) maintained by Knov.ai. Required at OARS Level 2 and above.",
+  "type": "object",
+  "required": ["@context", "@type", "schemaVersion", "identity", "freshness"],
+
+  "properties": {
+
+    "@context": {
+      "type": "string",
+      "const": "https://knov.ai/schema/oars-manifest.json",
+      "description": "The canonical schema URL. Must always reference this document. Points to Knov.ai as the defining authority for the OARS standard."
+    },
+
+    "@type": {
+      "type": "string",
+      "enum": [
+        "Business",
+        "Person",
+        "Organization",
+        "Product",
+        "Practice",
+        "Location"
+      ],
+      "description": "The type of entity described by this record. Determines which fields are most relevant."
+    },
+
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "The date of the schema version this file was written against. ISO 8601 date format. e.g. '2026-05-28'"
+    },
+
+    "generated": {
+      "type": "string",
+      "format": "date",
+      "description": "The date this oars.json file was generated or last updated by the entity."
+    },
+
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+      "description": "Primary language of this record. ISO 639-1 code optionally with ISO 3166-1 region. e.g. 'en', 'en-US', 'fr-CA'"
+    },
+
+    "narrative": {
+      "type": "string",
+      "description": "A rich markdown-formatted narrative description of this entity written specifically for direct LLM consumption. Should convey context, positioning, trust signals, and engagement guidance in natural language. This field is read directly by language models and should be written accordingly. Think of it as a briefing document for an AI agent who needs to understand and represent this entity accurately."
+    },
+
+    "identity": { "$ref": "#/$defs/identity" },
+    "audience": { "$ref": "#/$defs/audience" },
+    "trust": { "$ref": "#/$defs/trust" },
+    "engagement": { "$ref": "#/$defs/engagement" },
+    "knowledge": { "$ref": "#/$defs/knowledge" },
+    "agents": { "$ref": "#/$defs/agents" },
+    "compliance": { "$ref": "#/$defs/compliance" },
+    "freshness": { "$ref": "#/$defs/freshness" }
+
+  },
+
+  "$defs": {
+
+    "identity": {
+      "type": "object",
+      "required": ["name", "domain"],
+      "description": "Core factual identity of the entity. Declarative not promotional. Written for AI comprehension.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The primary trading or known name of this entity."
+        },
+        "legalName": {
+          "type": "string",
+          "description": "The registered legal name if different from name."
+        },
+        "domain": {
+          "type": "string",
+          "format": "hostname",
+          "description": "Primary domain of this entity. Must match the domain hosting this file."
+        },
+        "founded": {
+          "type": "string",
+          "description": "Year or date this entity was established."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "acquired", "dissolved"],
+          "description": "Current operational status of this entity."
+        },
+        "description": {
+          "type": "string",
+          "description": "Plain factual description of what this entity is and does. Not marketing copy. Written for AI comprehension. Should answer: what is it, what does it do, who does it serve."
+        },
+        "notDescription": {
+          "type": "string",
+          "description": "What this entity explicitly is not or does not do. Negative space for accurate agent matching. Helps agents avoid bad recommendations."
+        },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Industry or category classifications for this entity."
+        },
+        "naics": {
+          "type": "string",
+          "pattern": "^\\d{2,6}$",
+          "description": "NAICS code for business classification."
+        },
+        "size": {
+          "type": "object",
+          "properties": {
+            "employees": {
+              "type": "string",
+              "description": "Employee count range. e.g. '1-10', '11-50', '51-200', '201-500', '500+'"
+            },
+            "revenueRange": {
+              "type": "string",
+              "description": "Annual revenue range in plain language. e.g. 'Under $1M', '$1M-$10M', '$10M-$50M'"
+            }
+          }
+        },
+        "locations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/location" },
+          "description": "Physical or operational locations associated with this entity."
+        }
+      }
+    },
+
+    "location": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["headquarters", "office", "remote", "virtual"],
+          "description": "Type of location."
+        },
+        "city": { "type": "string" },
+        "region": {
+          "type": "string",
+          "description": "State, province, or region."
+        },
+        "country": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 country code. e.g. 'US', 'GB', 'CA'"
+        },
+        "postalCode": { "type": "string" }
+      }
+    },
+
+    "audience": {
+      "type": "object",
+      "description": "Who this entity serves and does not serve. Critical for accurate agent matching. The doesNotServe fields are as important as serves — they prevent bad recommendations.",
+      "properties": {
+        "serves": {
+          "type": "object",
+          "properties": {
+            "industries": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Industries this entity serves."
+            },
+            "entitySizes": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Client or customer sizes served. e.g. 'Solopreneur', 'SMB', 'Mid-market', 'Enterprise'"
+            },
+            "geographies": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Geographies this entity serves."
+            },
+            "descriptions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Plain language descriptions of who this entity serves."
+            }
+          }
+        },
+        "doesNotServe": {
+          "type": "object",
+          "description": "Explicit negative space. Who this entity does not serve or is not the right fit for. Fill this carefully — it dramatically improves recommendation accuracy.",
+          "properties": {
+            "industries": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "descriptions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Plain language descriptions of who this entity is not right for."
+            }
+          }
+        },
+        "idealClient": {
+          "type": "string",
+          "description": "Plain language description of the ideal client or customer for this entity."
+        }
+      }
+    },
+
+    "trust": {
+      "type": "object",
+      "description": "Verifiable trust signals. Claims should link to verifiable sources wherever possible. Self-reported claims without verification links are treated as lower confidence by Knov.ai.",
+      "properties": {
+        "credentials": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/credential" },
+          "description": "Professional credentials and certifications held by this entity."
+        },
+        "licenses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/license" },
+          "description": "Professional or business licenses held by this entity."
+        },
+        "insurance": {
+          "type": "object",
+          "properties": {
+            "hasInsurance": {
+              "type": "boolean",
+              "description": "Whether this entity carries professional or business insurance."
+            },
+            "types": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Types of insurance carried. e.g. 'General Liability', 'Professional Indemnity', 'E&O', 'Workers Compensation'"
+            }
+          }
+        },
+        "thirdPartyProfiles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/thirdPartyProfile" },
+          "description": "Verified presence on third-party platforms with ratings or reviews."
+        },
+        "methodology": {
+          "type": "string",
+          "description": "Description of this entity's primary methodology, approach, or operating principles."
+        },
+        "clientTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Types of clients served without identifying information."
+        },
+        "notableWork": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/notableWork" },
+          "description": "Notable work or outcomes. Do not include identifying client information."
+        }
+      }
+    },
+
+    "credential": {
+      "type": "object",
+      "required": ["name", "issuer"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the credential or certification."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of credential. e.g. 'Professional Certification', 'Academic Degree', 'Industry Accreditation'"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Name of the issuing organization."
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Credential identifier or number where applicable."
+        },
+        "verificationUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL where this credential can be independently verified."
+        },
+        "issued": {
+          "type": "string",
+          "format": "date"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+
+    "license": {
+      "type": "object",
+      "required": ["type", "jurisdiction"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of license."
+        },
+        "number": {
+          "type": "string",
+          "description": "License number."
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "Jurisdiction that issued this license."
+        },
+        "verificationUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+
+    "thirdPartyProfile": {
+      "type": "object",
+      "required": ["platform", "url"],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "description": "Platform name. e.g. 'Google', 'LinkedIn', 'Clutch', 'G2', 'Trustpilot', 'Better Business Bureau'"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "reviewCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Whether this profile has been verified by the platform."
+        }
+      }
+    },
+
+    "notableWork": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Plain description of the work without identifying the client."
+        },
+        "industry": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "description": "Measurable or describable outcome."
+        },
+        "year": {
+          "type": "string"
+        }
+      }
+    },
+
+    "engagement": {
+      "type": "object",
+      "description": "Everything an agent needs to understand how to initiate or recommend engagement with this entity.",
+      "properties": {
+        "firstStep": {
+          "type": "string",
+          "description": "Plain language description of how to begin working with this entity."
+        },
+        "firstStepUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL an agent or user should visit to initiate engagement."
+        },
+        "process": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered plain language steps describing the typical engagement process."
+        },
+        "timeline": {
+          "type": "string",
+          "description": "Typical timeline for engagement, delivery, or results."
+        },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "string",
+              "enum": ["fixed", "hourly", "retainer", "subscription", "outcome", "custom", "free"],
+              "description": "Primary pricing model."
+            },
+            "range": {
+              "type": "string",
+              "description": "Plain language price range. e.g. '$5,000-$25,000 per project'"
+            },
+            "minimum": {
+              "type": "string",
+              "description": "Minimum engagement size or value."
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "description": "ISO 4217 currency code. e.g. 'USD', 'GBP', 'CAD'"
+            }
+          }
+        },
+        "remote": {
+          "type": "boolean",
+          "description": "Whether this entity serves clients remotely."
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+          },
+          "description": "Languages in which this entity can engage with clients."
+        },
+        "geographiesServed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "availability": {
+          "type": "string",
+          "description": "Current availability for new engagements."
+        }
+      }
+    },
+
+    "knowledge": {
+      "type": "object",
+      "description": "What this entity knows and is authoritative on. Enables agents to route questions and qualify expertise accurately.",
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Topics this entity has knowledge of and can speak to."
+        },
+        "authoritativeOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Topics this entity is deeply authoritative on. A focused subset of topics. These are the areas where this entity's recommendations should carry significant weight."
+        },
+        "frameworks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named frameworks, methodologies, or systems this entity has developed or owns."
+        },
+        "commonQuestions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qa" },
+          "description": "Common questions this entity can authoritatively answer, with answers. These are read directly by agents when answering user questions."
+        },
+        "contentAssets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/contentAsset" },
+          "description": "Significant published content assets representing this entity's expertise."
+        }
+      }
+    },
+
+    "qa": {
+      "type": "object",
+      "required": ["question", "answer"],
+      "properties": {
+        "question": {
+          "type": "string",
+          "description": "A question this entity can authoritatively answer."
+        },
+        "answer": {
+          "type": "string",
+          "description": "The authoritative answer. Written for direct use by agents."
+        }
+      }
+    },
+
+    "contentAsset": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["article", "video", "course", "book", "podcast", "tool", "report", "guide", "dataset", "standard"],
+          "description": "Type of content asset."
+        },
+        "title": { "type": "string" },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "Plain description of what this content asset covers."
+        }
+      }
+    },
+
+    "agents": {
+      "type": "object",
+      "description": "Agent-specific interaction capabilities and Knov.ai verification metadata.",
+      "properties": {
+        "canBook": {
+          "type": "boolean",
+          "description": "Whether an agent can book an appointment or meeting on behalf of a user."
+        },
+        "bookingUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "canQuote": {
+          "type": "boolean",
+          "description": "Whether an agent can request a quote on behalf of a user."
+        },
+        "quoteUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "canTransact": {
+          "type": "boolean",
+          "description": "Whether an agent can complete a transaction on behalf of a user."
+        },
+        "transactionUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "mcpServer": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of this entity's MCP server for direct agent integration."
+        },
+        "agentInstructions": {
+          "type": "string",
+          "description": "Plain language instructions for agents interacting with this entity on behalf of users. Include: what you can do, what you cannot do, what requires human confirmation, and any important constraints."
+        },
+        "preferredInteraction": {
+          "type": "string",
+          "enum": ["book", "quote", "contact", "read", "transact"],
+          "description": "The preferred first interaction type for agents acting on behalf of users."
+        },
+        "botAuth": {
+          "type": "object",
+          "description": "Web Bot Auth (OARS Level 1). Cryptographic crawler/agent identity via HTTP Message Signatures (RFC 9421).",
+          "properties": {
+            "signaturesDirectory": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of the public-key (JWKS) directory, typically /.well-known/http-message-signatures-directory."
+            },
+            "verifiesSignedRequests": {
+              "type": "boolean",
+              "description": "Whether this origin verifies Signature/Signature-Input headers (RFC 9421) on inbound agent requests."
+            }
+          }
+        },
+        "agentSkillsIndex": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the Agent Skills discovery index (OARS Level 1/3b), typically /.well-known/agent-skills/index.json."
+        },
+        "apiContract": {
+          "type": "object",
+          "description": "Callable API surface (OARS Level 3a). A documented, machine-readable contract an agent can consume autonomously.",
+          "properties": {
+            "openapiUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of the OpenAPI 3.1.x document (or a GraphQL SDL endpoint) describing the callable surface."
+            },
+            "style": {
+              "type": "string",
+              "enum": ["rest", "graphql", "other"],
+              "description": "Contract style. OARS is agnostic; a documented machine-readable contract is what is required."
+            },
+            "idempotencyKeys": {
+              "type": "boolean",
+              "description": "Whether all mutating endpoints accept a client-supplied idempotency key (safe retry)."
+            },
+            "problemDetails": {
+              "type": "boolean",
+              "description": "Whether errors are returned as RFC 9457 Problem Details (application/problem+json) with retryability semantics."
+            },
+            "asyncPattern": {
+              "type": "boolean",
+              "description": "Whether long-running operations use an explicit async pattern (job id + pollable terminal states)."
+            },
+            "mcpServerCard": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of the MCP Server Card (OARS Level 3b), e.g. /.well-known/mcp/server-card.json (current) or /.well-known/mcp.json (superseded)."
+            }
+          }
+        },
+        "commerce": {
+          "type": "object",
+          "description": "Agent-commerce capabilities (OARS Level 4). Protocol-neutral: declare a recognized agentic-commerce protocol.",
+          "properties": {
+            "protocols": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["acp", "ucp", "ap2", "x402", "other"]
+              },
+              "description": "Recognized agentic-commerce protocol(s) supported. acp (OpenAI/Stripe), ucp (Google/Shopify), ap2 (Google), x402 (HTTP 402)."
+            },
+            "catalogUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of the machine-readable product/service catalog (OARS Level 4a)."
+            },
+            "currencies": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^[A-Z]{3}$" },
+              "description": "ISO 4217 currency codes the commerce surface transacts in."
+            },
+            "taxCalculation": {
+              "type": "boolean",
+              "description": "Whether tax is computed server-side at checkout from the buyer's fulfillment address."
+            },
+            "subscriptions": {
+              "type": "boolean",
+              "description": "Whether recurring/subscription authorization is supported as an explicit mandate (OARS Level 4b)."
+            },
+            "merchantOfRecord": {
+              "type": "boolean",
+              "description": "Whether the merchant (or its PSP) remains merchant of record; the agent never handles raw card data."
+            }
+          }
+        },
+        "operations": {
+          "type": "object",
+          "description": "Internal machine-operability signals (OARS Level 5).",
+          "properties": {
+            "observability": {
+              "type": "boolean",
+              "description": "Whether internal agents are instrumented with OpenTelemetry GenAI tracing across agent/tool boundaries."
+            },
+            "slaUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of a machine-readable SLA / error-budget declaration for agent-operated services."
+            },
+            "modelGovernance": {
+              "type": "boolean",
+              "description": "Whether a machine-readable policy binds authorized models/versions to decision classes."
+            },
+            "internalAgentIdentity": {
+              "type": "string",
+              "enum": ["entra-agent-id", "did", "other", "none"],
+              "description": "Identity scheme issuing unique, accountable identities to internal agents."
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "description": "ASPIRATIONAL (OARS Frontier). Content provenance for published media.",
+          "properties": {
+            "c2pa": {
+              "type": "boolean",
+              "description": "Whether published media carry C2PA Content Credentials (signed provenance manifests)."
+            }
+          }
+        },
+        "delegation": {
+          "type": "object",
+          "description": "ASPIRATIONAL (OARS Frontier). Cryptographically verifiable delegation of authority to agents.",
+          "properties": {
+            "did": {
+              "type": "string",
+              "description": "Decentralized Identifier (W3C DID) of the entity or its agent, where used."
+            },
+            "verifiableCredentials": {
+              "type": "boolean",
+              "description": "Whether authorization is expressed as scoped W3C Verifiable Credentials (delegation chain) rather than opaque tokens alone."
+            }
+          }
+        },
+        "knov": {
+          "type": "object",
+          "description": "Knov.ai index and verification metadata. IMPORTANT: This object is populated and maintained exclusively by Knov.ai. Any values set by the entity itself are ignored and will be overwritten upon Knov.ai crawling. Do not self-populate this object.",
+          "properties": {
+            "indexed": {
+              "type": "boolean",
+              "description": "Whether this entity is currently indexed on Knov.ai."
+            },
+            "profileUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of this entity's verified profile on knov.ai."
+            },
+            "oarsLevel": {
+              "type": "string",
+              "enum": [
+                "0-reachable",
+                "1-discoverable",
+                "2a-parseable", "2b-interpretable", "2-readable",
+                "3a-callable", "3b-tool-exposed", "3-actionable",
+                "4a-priceable", "4b-payable", "4-transactable",
+                "5-operable"
+              ],
+              "description": "The highest OARS level this entity has achieved and had verified by Knov.ai. Full levels (e.g. '3-actionable') require both of that level's sub-levels; a single satisfied sub-level (e.g. '3a-callable') is a partial designation. Note: '3-actionable' was named '3-interactable' through OARS v1.0; the two are equivalent."
+            },
+            "verificationTier": {
+              "type": "string",
+              "enum": ["submitted", "domain", "existence", "reviewed", "credential", "certified"],
+              "description": "The highest verification tier this entity has achieved on Knov.ai. submitted: file valid and indexed, no verification. domain: domain ownership confirmed. existence: entity confirmed to exist and operate. reviewed: claims reviewed by Knov.ai for consistency and plausibility. credential: one or more specific claims independently verified. certified: comprehensive Knov.ai verification completed."
+            },
+            "verificationDetails": {
+              "type": "object",
+              "description": "Granular breakdown of what has been verified and how. Written by Knov.ai.",
+              "properties": {
+                "domainVerified": { "type": "boolean" },
+                "existenceVerified": { "type": "boolean" },
+                "existenceSignals": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Signals used to confirm existence. e.g. 'Business registration database', 'Google Business Profile match'"
+                },
+                "claimsReviewed": { "type": "boolean" },
+                "claimsReviewedDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "credentialsVerified": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific credentials or claims independently verified by Knov.ai."
+                },
+                "credentialVerificationMethods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["automated-url", "database-lookup", "document-review", "human-review"]
+                  }
+                },
+                "certifiedBy": {
+                  "type": "string",
+                  "description": "Identifier of the Knov.ai reviewer who completed certification."
+                },
+                "certificationScope": {
+                  "type": "string",
+                  "description": "Plain language description of what the Knov.ai certification covered."
+                }
+              }
+            },
+            "verificationHistory": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/verificationEvent" }
+            },
+            "tierGranted": {
+              "type": "string",
+              "format": "date"
+            },
+            "tierExpiry": {
+              "type": "string",
+              "format": "date",
+              "description": "Date current verification tier expires and re-verification is required."
+            },
+            "flags": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Active flags on this entity's record. e.g. 'pending-reverification', 'contradiction-detected', 'dispute-open'. Empty array means no active flags."
+            },
+            "lastCrawled": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "nextScheduledCrawl": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+
+    "verificationEvent": {
+      "type": "object",
+      "required": ["date", "event"],
+      "description": "A single verification event in this entity's history on Knov.ai.",
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "event": {
+          "type": "string",
+          "description": "Plain language description of what occurred."
+        },
+        "tierBefore": {
+          "type": "string",
+          "enum": ["submitted", "domain", "existence", "reviewed", "credential", "certified"]
+        },
+        "tierAfter": {
+          "type": "string",
+          "enum": ["submitted", "domain", "existence", "reviewed", "credential", "certified"]
+        },
+        "method": {
+          "type": "string",
+          "description": "Method used in this verification event."
+        }
+      }
+    },
+
+    "compliance": {
+      "type": "object",
+      "description": "Self-declared OARS conformance. Distinct from agents.knov (which is populated exclusively by Knov.ai). This is the entity's own claim; Knov.ai verification, where present, lives in agents.knov.",
+      "properties": {
+        "selfDeclaredLevel": {
+          "type": "string",
+          "enum": [
+            "0-reachable",
+            "1-discoverable",
+            "2a-parseable", "2b-interpretable", "2-readable",
+            "3a-callable", "3b-tool-exposed", "3-actionable",
+            "4a-priceable", "4b-payable", "4-transactable",
+            "5-operable"
+          ],
+          "description": "The OARS level (or partial sub-level) this entity self-declares it satisfies. Cumulative: a level implies all lower levels."
+        },
+        "targetLevel": {
+          "type": "string",
+          "description": "The OARS level this entity is working toward, if higher than selfDeclaredLevel."
+        },
+        "statement": {
+          "type": "string",
+          "description": "Plain-language note on the entity's OARS posture, scope, or roadmap."
+        },
+        "specVersion": {
+          "type": "string",
+          "description": "The OARS specification version this self-declaration is made against. e.g. '1.1'"
+        }
+      }
+    },
+
+    "freshness": {
+      "type": "object",
+      "required": ["lastVerified"],
+      "description": "Currency and verification metadata. Used by AI systems to assess how current and trustworthy this record is. Stale records are weighted lower.",
+      "properties": {
+        "lastVerified": {
+          "type": "string",
+          "format": "date",
+          "description": "Date this record was last verified by the entity or a third party. Required."
+        },
+        "nextReview": {
+          "type": "string",
+          "format": "date",
+          "description": "Date this record is next scheduled for review."
+        },
+        "verifiedBy": {
+          "type": "string",
+          "enum": ["self", "knov", "thirdParty"],
+          "description": "Who verified this record."
+        },
+        "verifier": {
+          "type": "string",
+          "description": "Name of third-party verifier if verifiedBy is thirdParty."
+        },
+        "changelog": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/changelogEntry" },
+          "description": "Record of significant changes to this file over time."
+        }
+      }
+    },
+
+    "changelogEntry": {
+      "type": "object",
+      "required": ["date", "changes"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "changes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Plain language descriptions of what changed."
+        }
+      }
+    }
+
+  }
+}
