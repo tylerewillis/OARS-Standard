@@ -76,6 +76,11 @@
           "type": "string",
           "description": "The registered legal name if different from name."
         },
+        "sameAs": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "URLs of public profiles or records that externally verify this entity — social accounts, code repositories, business registries, or directory listings the entity does not itself control. The schema.org `sameAs` equivalent. Lets agents and reviewers cross-check identity against independent sources (OARS Level 1: identity verifiable against publicly verifiable information)."
+        },
         "domain": {
           "type": "string",
           "format": "hostname",
@@ -830,7 +835,7 @@
         },
         "specVersion": {
           "type": "string",
-          "description": "The OARS specification version this self-declaration is made against. e.g. '1.1'"
+          "description": "The OARS specification version this self-declaration is made against. e.g. '1.2'"
         }
       }
     },

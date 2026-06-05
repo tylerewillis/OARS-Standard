@@ -14,7 +14,7 @@ Implementing OARS never requires payment to Knov.ai. Assessing your site, genera
 
 Changes to the specification are proposed publicly, reviewed with community input, and published with version history. Every `oars.json` records the `schemaVersion` it was written against, and each manifest's `@context` points at the permanent schema URL so existing files never break when the standard advances.
 
-The current version is **OARS v1.1**. The full [change history](CHANGELOG.md) is maintained in this repository, and a copy lives at the bottom of the [specification](SPECIFICATION.md#changelog).
+The current version is **OARS v1.2**. The full [change history](CHANGELOG.md) is maintained in this repository, and a copy lives at the bottom of the [specification](SPECIFICATION.md#changelog).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a change or report an issue.
 

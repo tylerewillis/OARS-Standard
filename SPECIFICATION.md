@@ -1,9 +1,9 @@
 # OARS Specification
-## Open Agent Readiness Standard v1.1
+## Open Agent Readiness Standard v1.2
 
 **Published by:** Knov.ai  
-**Version:** 1.1  
-**Status:** Published 5-31-2026  
+**Version:** 1.2  
+**Status:** Published 6-5-2026  
 **Schema:** https://knov.ai/schema/oars-manifest.json  
 **Human documentation:** https://knov.ai/standard  
 
@@ -305,7 +305,7 @@ See `/schema/oars-manifest.json` for the full JSON Schema definition of this fil
 - Feed entries carry a stable unique identifier and an accurate timestamp so consumers can detect new and changed items without re-fetching the full corpus.
 
 #### Media Provenance (Aspirational)
-> **Aspirational.** Not required to pass Level 2b in OARS v1.1. C2PA is an actively evolving consortium specification with limited deployment tooling.
+> **Aspirational.** Not required to pass Level 2b. C2PA is an actively evolving consortium specification with limited deployment tooling.
 - Published media carry C2PA Content Credentials: cryptographically signed provenance manifests recording origin, authorship, editing history, and any AI involvement, per the C2PA Technical Specification.
 - Provenance manifests are embedded in the asset or resolvable via an external claim, and validate against a trusted signer such that tampering is detectable.
 
@@ -748,6 +748,7 @@ This section qualifies the maturity, stability, and evidentiary basis of the req
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | 6-5-2026 | Added the optional `identity.sameAs` field to the oars.json schema — an array of URLs to public profiles or records (social, code repositories, business registries, directory listings) that externally verify the entity. Supports the Level 1 requirement that schema.org identity be verifiable against publicly verifiable information. Backward compatible: the field is optional and additive. |
 | 1.1 | 5-31-2026 | Added **Level 0: Reachable** prerequisite tier. Split Levels 2/3/4 into sub-levels (2a Parseable / 2b Interpretable, 3a Callable / 3b Tool-Exposed, 4a Priceable / 4b Payable). Renamed Level 3 **Interactable → Actionable**. Added Web Bot Auth, Content Signals, the full `.well-known` inventory, Agent Skills discovery, Markdown content negotiation, machine-readable feeds, idempotency/RFC 9457/async API conventions, MCP Server Cards + security controls, the ACP/UCP/AP2/x402 commerce stack, agent identity/observability/SLAs at Level 5, and new **Frontier** and **Caveats** sections. |
 | 1.0 | 5-28-2026 | Initial specification draft |
 

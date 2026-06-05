@@ -3,7 +3,7 @@
 OARS defines what it means for a website or business entity to be **ready for interaction with AI agents**, autonomous systems, and language models acting on behalf of users. It is an open standard: any entity may implement it without license or fee.
 
 **Maintained by [Knov.ai](https://knov.ai).**
-**Current version:** 1.1 · **Human documentation:** <https://knov.ai/standard>
+**Current version:** 1.2 · **Human documentation:** <https://knov.ai/standard>
 
 ---
 
